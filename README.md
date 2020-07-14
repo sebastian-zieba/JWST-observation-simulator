@@ -2,12 +2,12 @@
 
 ## Goal:
 
-### This repository will contain some code to simulate JWST observations for a specific target
+This repository will contain some code to simulate JWST observations for a specific target
 
 ## Reason:
 
-### Proposal(s)(?)
+Proposal(s)(?)
 
 ## Structure and Contents:
 
-### [TODO: code some code....]
+[TODO: code some code....]
