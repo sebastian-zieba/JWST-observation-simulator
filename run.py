@@ -7,6 +7,12 @@ import pandexo.engine.justdoit as jdi # THIS IS THE HOLY GRAIL OF PANDEXO
 import numpy as np
 import os
 
+from subprocess import call
+import sys, os
+import subprocess
+
+
+
 #Parameters
 magK = 7.853 #https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
 Ts =6290 #https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
@@ -54,6 +60,7 @@ exo_dict['planet']['f_unit'] = 'rp^2/r*^2'        #this is what you would do for
 #jdi.print_instruments()
 
 result = jdi.run_pandexo(exo_dict,['NIRSpec G395H'])
+#result = jdi.run_pandexo(exo_dict,['NIRSpec PRISM'])
 
 n_lam = 2/(exo_dict['planet']['transit_duration']*result['FinalSpectrum']['error_w_floor']**2)
 

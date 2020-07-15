@@ -1,0 +1,13 @@
+#parameters		value		description			source
+magK			7.853		star magnitude in K-band	https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
+Ts			6290		star temperature in Kelvin	https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
+metal			-0.24		star metallicity		https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
+logg			4.29		star logg (cgs)			https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
+Rp_earth		3.95		planet radius in earth radii	https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
+Rs_sun			1.18		star radius in sun radii	https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
+D			4.693		transit duration in hours	https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
+###
+GRISM			NIRSpec G395H	used Grism			
+noccultations		1		number of transits
+R			50		binning
+baseline		1		in/out transit fraction
