@@ -8,12 +8,12 @@ import numpy as np
 import os
 
 #Parameters
-magK = 7.853 #http://simbad.u-strasbg.fr/simbad/sim-id?protocol=html&Ident=HD%20106315
-Ts =6250 #https://arxiv.org/pdf/2006.07444.pdf
-metal = -0.2
-logg = 4.5
-Rp_earth = 4.0
-Rs_sun = 1.14313
+magK = 7.853 #https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
+Ts =6290 #https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
+metal = -0.24#https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
+logg = 4.29#https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
+Rp_earth = 3.95 #https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
+Rs_sun = 1.18 #https://iopscience.iop.org/article/10.3847/1538-3881/aa6e01/pdf
 
 
 exo_dict = jdi.load_exo_dict()
@@ -38,7 +38,7 @@ exo_dict['star']['metal'] = metal            # as log Fe/H
 exo_dict['star']['logg'] = logg              #log surface gravity cgs
 
 exo_dict['planet']['type'] = 'constant'                  #tells pandexo you want a fixed transit depth
-exo_dict['planet']['transit_duration'] = 2.2*2*60.0*60.0   #transit duration
+exo_dict['planet']['transit_duration'] = 4.693*60.0*60.0   #transit duration
 exo_dict['planet']['td_unit'] = 's'
 exo_dict['planet']['radius'] = Rp_earth
 exo_dict['planet']['r_unit'] = 'R_earth'            #Any unit of distance in accordance with astropy.units can be added here
@@ -52,13 +52,14 @@ exo_dict['planet']['f_unit'] = 'rp^2/r*^2'        #this is what you would do for
 #exo_dict['planet']['temp'] = T_day(Ts, ars, 0)[0]
 
 #jdi.print_instruments()
+
 result = jdi.run_pandexo(exo_dict,['NIRSpec G395H'])
 
 n_lam = 2/(exo_dict['planet']['transit_duration']*result['FinalSpectrum']['error_w_floor']**2)
 
 # in 1 sec
 print('one sec:', np.sqrt(sum(n_lam))/(sum(n_lam))*1e6)
-# in 1 min #it only takes a minute girl
+# in 1 min #"it only takes a minute girl"
 print('one min:', np.sqrt(sum(n_lam)*60)/(sum(n_lam)*60)*1e6)
 # in 30 minute
 print('30 mins:', np.sqrt(sum(n_lam)*60*30)/(sum(n_lam)*60*30)*1e6)
