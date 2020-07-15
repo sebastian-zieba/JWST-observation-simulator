@@ -1,0 +1,23 @@
+Transit Duration                         4.693                    
+Seconds per Frame                        0.902                    
+Time/Integration incl reset (sec)        9.922                    
+APT: Num Groups per Integration          10.0                     
+Num Integrations Out of Transit          1703.0                   
+Num Integrations In Transit              1703.0                   
+APT: Num Integrations per Occultation    3406.0                   
+Observing Efficiency (%)                 81.81818181818183        
+Transit+Baseline, no overhead (hrs)      9.387314444444446        
+Number of Transits                       1                        
+
+
+Group Number Too Low?     All good                 
+Group Number Too High?    All good                 
+Non linear?               All good                 
+Saturated?                All good                 
+% full well high?         All good                 
+Num Groups Reset?         All good                 
+
+
+rms one sec: 260.93833679457543
+rms one min: 33.68699442641509
+rms 30 mins: 6.150375580632782
