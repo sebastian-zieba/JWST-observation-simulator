@@ -6,29 +6,59 @@ warnings.filterwarnings('ignore')
 import pandexo.engine.justdoit as jdi # THIS IS THE HOLY GRAIL OF PANDEXO
 import numpy as np
 import os
+
+#Parameters
+magK = 7.853 #http://simbad.u-strasbg.fr/simbad/sim-id?protocol=html&Ident=HD%20106315
+Ts =6250 #https://arxiv.org/pdf/2006.07444.pdf
+metal = -0.2
+logg = 4.5
+Rp_earth = 4.0
+Rs_sun = 1.14313
+
+
 exo_dict = jdi.load_exo_dict()
+
 exo_dict['observation']['sat_level'] = 80    #saturation level in percent of full well
 exo_dict['observation']['sat_unit'] = '%'
-exo_dict['observation']['noccultations'] = 2 #number of transits
-exo_dict['observation']['R'] = None          #fixed binning. I usually suggest ZERO binning.. you can always bin later
+exo_dict['observation']['noccultations'] = 1 #number of transits
+exo_dict['observation']['R'] = 50          #fixed binning. I usually suggest ZERO binning.. you can always bin later
                                              #without having to redo the calcualtion
-exo_dict['observation']['baseline'] = 1.0    #fraction of time in transit versus out = in/out
-exo_dict['observation']['baseline_unit'] = 'frac'
+exo_dict['observation']['baseline_unit'] = 'frac'  #Defines how you specify out of transit observing time
+                                                    #'frac' : fraction of time in transit versus out = in/out
+                                                    #'total' : total observing time (seconds)
+exo_dict['observation']['baseline'] = 1 #in accordance with what was specified above (total observing time)
+
 exo_dict['observation']['noise_floor'] = 0   #this can be a fixed level or it can be a filepath
+                                             #to a wavelength dependent noise floor solution (units are ppm)
 exo_dict['star']['type'] = 'phoenix'        #phoenix or user (if you have your own)
-exo_dict['star']['mag'] = 8.0               #magnitude of the system
-exo_dict['star']['ref_wave'] = 1.25         #For J mag = 1.25, H = 1.6, K =2.22.. etc (all in micron)
-exo_dict['star']['temp'] = 5500             #in K
-exo_dict['star']['metal'] = 0.0             # as log Fe/H
-exo_dict['star']['logg'] = 4.0
-exo_dict['star']['radius'] = 1
-exo_dict['star']['r_unit'] = 'R_sun'
-exo_dict['planet']['type'] = 'constant'
-exo_dict['planet']['radius'] = 1                      #other options include "um","nm" ,"Angs", "secs" (for phase curves)
-exo_dict['planet']['r_unit'] = 'R_jup'
-exo_dict['planet']['transit_duration'] = 2.0*60.0*60.0
+exo_dict['star']['mag'] = magK             #magnitude of the system
+exo_dict['star']['ref_wave'] = 2.22         #For J mag = 1.25, H = 1.6, K =2.22.. etc (all in micron)
+exo_dict['star']['temp'] = Ts            #in K
+exo_dict['star']['metal'] = metal            # as log Fe/H
+exo_dict['star']['logg'] = logg              #log surface gravity cgs
+
+exo_dict['planet']['type'] = 'constant'                  #tells pandexo you want a fixed transit depth
+exo_dict['planet']['transit_duration'] = 2.2*2*60.0*60.0   #transit duration
 exo_dict['planet']['td_unit'] = 's'
-exo_dict['planet']['f_unit'] = 'rp^2/r*^2'
-print('Starting TEST run')
-jdi.run_pandexo(exo_dict, ['NIRSpec G140H'], save_file=False)
-print('SUCCESS')
+exo_dict['planet']['radius'] = Rp_earth
+exo_dict['planet']['r_unit'] = 'R_earth'            #Any unit of distance in accordance with astropy.units can be added here
+exo_dict['star']['radius'] = Rs_sun
+exo_dict['star']['r_unit'] = 'R_sun'              #Same deal with astropy.units here
+exo_dict['planet']['f_unit'] = 'rp^2/r*^2'        #this is what you would do for primary transit
+
+#ORRRRR....
+#if you wanted to instead to secondary transit at constant temperature
+#exo_dict['planet']['f_unit'] = 'fp/f*'
+#exo_dict['planet']['temp'] = T_day(Ts, ars, 0)[0]
+
+#jdi.print_instruments()
+result = jdi.run_pandexo(exo_dict,['NIRSpec G395H'])
+
+n_lam = 2/(exo_dict['planet']['transit_duration']*result['FinalSpectrum']['error_w_floor']**2)
+
+# in 1 sec
+print('one sec:', np.sqrt(sum(n_lam))/(sum(n_lam))*1e6)
+# in 1 min #it only takes a minute girl
+print('one min:', np.sqrt(sum(n_lam)*60)/(sum(n_lam)*60)*1e6)
+# in 30 minute
+print('30 mins:', np.sqrt(sum(n_lam)*60*30)/(sum(n_lam)*60*30)*1e6)
