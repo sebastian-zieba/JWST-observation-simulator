@@ -7,9 +7,12 @@ Rp_earth		3.95
 Rs_sun			1.18
 D			4.693
 ###
-NIRSpec			G395H
+InstrumentName		NIRCam
+InstrumentSpecif	F444W
 noccultations		1	
 R			50
 baseline		1
 ###
-output			True	
+output			True
+###
+path			/home/zieba/Desktop/Data/HD106315c/	

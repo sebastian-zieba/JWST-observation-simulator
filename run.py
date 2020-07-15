@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings('ignore')
 import pandexo.engine.justdoit as jdi # THIS IS THE HOLY GRAIL OF PANDEXO
-import numpy as np
+
 import os
 
 from astropy.io import ascii
@@ -46,11 +46,14 @@ class AncillaryData:
         self.Rp_earth = str_to_num(params['Rp_earth'])
         self.Rs_sun = str_to_num(params['Rs_sun'])
         self.D = str_to_num(params['D'])
-        self.instrument = 'NIRSpec ' + params['NIRSpec']
+
         self.noccultations = str_to_num(params['noccultations'])
         self.R = str_to_num(params['R'])
         self.baseline = str_to_num(params['baseline'])
         self.output = convert_to_bool(params['output'])
+        self.path = params['path']
+
+        self.instrument = params['InstrumentName'] + ' ' + params['InstrumentSpecif']
 
 
 def make_dict(table):
@@ -60,7 +63,7 @@ def make_dict(table):
 params = make_dict(ascii.read("config/params.txt", Reader=ascii.CommentedHeader))
 ancil = AncillaryData(params)
 
-
+print(ancil.instrument)
 
 
 
@@ -74,6 +77,34 @@ if ancil.output == True:
 
     copyfile("./config/params.txt", dirname+"/params.txt")        #stores obs_par.txt
 
+
+### PLOT SPECTRUM
+
+datafile_nometal = 'trans_spect_hd106315c_LKrescale_m0.5_co1.0nc_f0.1.txt'
+datafile_metal = 'trans_spect_hd106315c_LKrescale_m2.5_co1.0nc.txt'
+
+print(ancil.path)
+
+wvl_nometal, depth_nometal = np.loadtxt(ancil.path + datafile_nometal, skiprows=1).T
+wvl_metal, depth_metal = np.loadtxt(ancil.path + datafile_metal, skiprows=1).T
+
+print(np.median(depth_nometal))
+print(np.median(depth_metal))
+
+fig, ax = plt.subplots(1,1,figsize=(11,5))
+
+ax.errorbar(wvl_nometal, depth_nometal*1e6, yerr = [67.14]*len(depth_nometal))
+
+ax.set_xlim(0, 21)
+#ax.set_xlim(0.7, 21)
+ax.set_ylim(1e3, 3e3)
+
+ax.set_xlabel('wavelength (microns)')
+ax.set_ylabel('transit depth (ppm)')
+
+#ax.set_xscale('log')
+
+plt.savefig('test.png')
 
 
 ### RUN PANDEXO
