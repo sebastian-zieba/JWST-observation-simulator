@@ -54,10 +54,12 @@ if ancil.output == True:
 
     resultfile = open(dirname+'/results.txt', 'w')
 
-    copyfile("./config/params.txt", dirname+"/params.txt")        #stores obs_par.txt
+    copyfile("./config/params.yaml", dirname+"/params.yaml")        #stores a copy of params.yaml in runs_dir
 
 
 ### PLOT SPECTRUM
+### THIS PART WILL BE REMOVED SOON AS IT'S NOT RELEVANT FOR THE ANALYSIS
+
 
 datafile_nometal = 'trans_spect_hd106315c_LKrescale_m0.5_co1.0nc_f0.1.txt'
 datafile_metal = 'trans_spect_hd106315c_LKrescale_m2.5_co1.0nc.txt'
@@ -67,8 +69,11 @@ print(ancil.path)
 wvl_nometal, depth_nometal = np.loadtxt(ancil.path + datafile_nometal, skiprows=1).T
 wvl_metal, depth_metal = np.loadtxt(ancil.path + datafile_metal, skiprows=1).T
 
-print(np.median(depth_nometal))
-print(np.median(depth_metal))
+mask45_nometal = [4 < wvli < 5 for wvli in wvl_nometal]
+mask45_metal = [4 < wvli < 5 for wvli in wvl_metal]
+
+print(np.median(depth_nometal[mask45_nometal]))
+print(np.median(depth_metal[mask45_metal]))
 
 fig, ax = plt.subplots(1,1,figsize=(11,5))
 
@@ -82,9 +87,10 @@ ax.set_xlabel('wavelength (microns)')
 ax.set_ylabel('transit depth (ppm)')
 
 #ax.set_xscale('log')
+#plt.savefig('test.png')
 
-plt.savefig('test.png')
 
+### ACTUAL RELEVANT PART CONTINUES
 
 ### RUN PANDEXO
 
