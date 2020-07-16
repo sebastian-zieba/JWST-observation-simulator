@@ -11,3 +11,10 @@ Proposal(s)(?)
 ## Structure and Contents:
 
 [TODO: code some code....]
+
+## Requirements
+
+- python
+- numpy
+- pandexo
+- yaml

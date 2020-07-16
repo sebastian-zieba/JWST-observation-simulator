@@ -11,27 +11,14 @@ from astropy.io import ascii
 from datetime import datetime
 from shutil import copyfile
 
-def str_to_num(str):
-    'Return value of numeric literal string or ValueError exception'
+import yaml
 
-    # Handle '0'
-    if str == '0': return 0
 
-    # Int/Float/Complex
-    try:
-        return int(str)
-    except ValueError:
-        pass
-    try:
-        return float(str)
-    except ValueError:
-        pass
-    return str
+with open('./config/params.yaml', 'r') as file:
+    params = yaml.safe_load(file)
 
-def convert_to_bool(str):
-    if str=="True": return True
-    elif str=="False": return False
-    else: return "String not equal to True or False"
+for k,v in params.items():
+    print(k, type(v))
 
 class AncillaryData:
     """
@@ -39,32 +26,24 @@ class AncillaryData:
     """
 
     def __init__(self, params):
-        self.magK = str_to_num(params['magK'])
-        self.Ts = str_to_num(params['Ts'])
-        self.metal = str_to_num(params['metal'])
-        self.logg = str_to_num(params['logg'])
-        self.Rp_earth = str_to_num(params['Rp_earth'])
-        self.Rs_sun = str_to_num(params['Rs_sun'])
-        self.D = str_to_num(params['D'])
+        self.magK = params['magK']
+        self.Ts = params['Ts']
+        self.metal = params['metal']
+        self.logg = params['logg']
+        self.Rp_earth = params['Rp_earth']
+        self.Rs_sun = params['Rs_sun']
+        self.D = params['D']
 
-        self.noccultations = str_to_num(params['noccultations'])
-        self.R = str_to_num(params['R'])
-        self.baseline = str_to_num(params['baseline'])
-        self.output = convert_to_bool(params['output'])
+        self.noccultations = params['noccultations']
+        self.R = params['R']
+        self.baseline = params['baseline']
+        self.output = params['output']
         self.path = params['path']
 
-        self.instrument = params['InstrumentName'] + ' ' + params['InstrumentSpecif']
+        self.instrument = params['instrument']
 
 
-def make_dict(table):
-    return {x['parameter']: x['value'] for x in table}
-
-
-params = make_dict(ascii.read("config/params.txt", Reader=ascii.CommentedHeader))
 ancil = AncillaryData(params)
-
-print(ancil.instrument)
-
 
 
 ### SAVE OUTPUT IF WISHED

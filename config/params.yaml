@@ -1,0 +1,18 @@
+#parameter: value		
+magK: 7.853
+Ts: 6290
+metal: -0.24
+logg: 4.29
+Rp_earth: 3.95
+Rs_sun: 1.18
+D: 4.693
+###
+instrument: NIRCam F444W
+noccultations: 1
+R: 50
+baseline: 1
+###
+output: True
+###
+path: /home/zieba/Desktop/Data/HD106315c/
+
