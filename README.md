@@ -10,7 +10,9 @@ Proposal(s)(?)
 
 ## Structure and Contents:
 
-[TODO: code some code....]
+run.py: runs main PandExo code
+
+config/params.yaml: contains system/instument/analysis specific information set by the user 
 
 ## Requirements
 
