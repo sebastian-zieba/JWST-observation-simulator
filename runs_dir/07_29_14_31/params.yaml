@@ -14,6 +14,6 @@ baseline: 1
 ###
 output: True #set if output should be saved
 ###
-path_to_model: /home/zieba/Desktop/Data/HD106315c/hd106315c_metals_offsetcorr.txt #set to False if not wanted
+path_to_model: /home/zieba/Desktop/Data/HD106315c/hd106315c_clouds_offsetcorr.txt #set to False if not wanted
 w_unit: um #set to "cm", "um","nm" ,"Angs", "sec" (for phase curves)
 

@@ -18,6 +18,6 @@ Saturated?                All good
 Num Groups Reset?         All good                 
 
 
-rms one sec: 520.0951990465355
-rms one min: 67.14400147832211
-rms 30 mins: 12.258761403612413
+rms one sec: 520.0024673121181
+rms one min: 67.13202986288667
+rms 30 mins: 12.256575695671156

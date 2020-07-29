@@ -13,6 +13,15 @@ from shutil import copyfile
 
 import yaml
 
+### BINNING FUNCTION ###
+def bins(x, y, y_err, n_bins):
+    indexes = np.array_split(np.arange(len(x)), n_bins)
+    #print((indexes[0]).size)
+    binned_x = np.array([np.mean(x[a]) for a in indexes])
+    binned_y = np.array([np.mean(y[a]) for a in indexes])
+    binned_y_err = np.array([np.sqrt(sum(y_err[a]**2)) / np.size(a) for a in indexes])
+    return (binned_x, binned_y, binned_y_err)
+
 
 with open('./config/params.yaml', 'r') as file:
     params = yaml.safe_load(file)
@@ -38,7 +47,8 @@ class AncillaryData:
         self.R = params['R']
         self.baseline = params['baseline']
         self.output = params['output']
-        self.path = params['path']
+        self.path_to_model = params['path_to_model']
+        self.w_unit = params['w_unit']
 
         self.instrument = params['instrument']
 
@@ -46,7 +56,7 @@ class AncillaryData:
 ancil = AncillaryData(params)
 
 
-### SAVE OUTPUT IF WISHED
+### SAVE OUTPUT IF WISHED ###
 
 if ancil.output == True:
     dirname = "runs_dir/" + datetime.strftime(datetime.now(), '%m_%d_%H_%M')
@@ -57,37 +67,25 @@ if ancil.output == True:
     copyfile("./config/params.yaml", dirname+"/params.yaml")        #stores a copy of params.yaml in runs_dir
 
 
-### PLOT SPECTRUM
-### THIS PART WILL BE REMOVED SOON AS IT'S NOT RELEVANT FOR THE ANALYSIS
 
+### GET THROUGHPUT DATA ###
 
-datafile_nometal = 'trans_spect_hd106315c_LKrescale_m0.5_co1.0nc_f0.1.txt'
-datafile_metal = 'trans_spect_hd106315c_LKrescale_m2.5_co1.0nc.txt'
+#print(jdi.print_instruments())
+thru_dict = jdi.get_thruput('NIRCam F444W')
 
-print(ancil.path)
+wvl_tp = thru_dict['wave']
+pce_tp = thru_dict['pce']
 
-wvl_nometal, depth_nometal = np.loadtxt(ancil.path + datafile_nometal, skiprows=1).T
-wvl_metal, depth_metal = np.loadtxt(ancil.path + datafile_metal, skiprows=1).T
+mask_pce=[]
+for i in pce_tp:
+    if i/max(pce_tp)>0.1: #only take data where photon conversion effiency is above 10% max
+        mask_pce.append(True)
+    else:
+        mask_pce.append(False)
 
-mask45_nometal = [4 < wvli < 5 for wvli in wvl_nometal]
-mask45_metal = [4 < wvli < 5 for wvli in wvl_metal]
+wvl_range = [wvl_tp[mask_pce][0], wvl_tp[mask_pce][-1]]
 
-print(np.median(depth_nometal[mask45_nometal]))
-print(np.median(depth_metal[mask45_metal]))
-
-fig, ax = plt.subplots(1,1,figsize=(11,5))
-
-ax.errorbar(wvl_nometal, depth_nometal*1e6, yerr = [67.14]*len(depth_nometal))
-
-ax.set_xlim(0, 21)
-#ax.set_xlim(0.7, 21)
-ax.set_ylim(1e3, 3e3)
-
-ax.set_xlabel('wavelength (microns)')
-ax.set_ylabel('transit depth (ppm)')
-
-#ax.set_xscale('log')
-#plt.savefig('test.png')
+print(wvl_range)
 
 
 ### ACTUAL RELEVANT PART CONTINUES
@@ -96,10 +94,12 @@ ax.set_ylabel('transit depth (ppm)')
 
 exo_dict = jdi.load_exo_dict()
 
+### OBSERVATION INPUTS ###
+
 exo_dict['observation']['sat_level'] = 80    #saturation level in percent of full well
 exo_dict['observation']['sat_unit'] = '%'
 exo_dict['observation']['noccultations'] = ancil.noccultations #number of transits
-exo_dict['observation']['R'] = ancil.R          #fixed binning. I usually suggest ZERO binning.. you can always bin later
+exo_dict['observation']['R'] = None#ancil.R          #fixed binning. I usually suggest ZERO binning.. you can always bin later
                                              #without having to redo the calcualtion
 exo_dict['observation']['baseline_unit'] = 'frac'  #Defines how you specify out of transit observing time
                                                     #'frac' : fraction of time in transit versus out = in/out
@@ -108,6 +108,10 @@ exo_dict['observation']['baseline'] = ancil.baseline #in accordance with what wa
 
 exo_dict['observation']['noise_floor'] = 0   #this can be a fixed level or it can be a filepath
                                              #to a wavelength dependent noise floor solution (units are ppm)
+
+### HOST STAR INPUTS ###
+
+
 exo_dict['star']['type'] = 'phoenix'        #phoenix or user (if you have your own)
 exo_dict['star']['mag'] = ancil.magK             #magnitude of the system
 exo_dict['star']['ref_wave'] = 2.22         #For J mag = 1.25, H = 1.6, K =2.22.. etc (all in micron)
@@ -115,24 +119,82 @@ exo_dict['star']['temp'] = ancil.Ts            #in K
 exo_dict['star']['metal'] = ancil.metal            # as log Fe/H
 exo_dict['star']['logg'] = ancil.logg             #log surface gravity cgs
 
-exo_dict['planet']['type'] = 'constant'                  #tells pandexo you want a fixed transit depth
-exo_dict['planet']['transit_duration'] = ancil.D*60.0*60.0   #transit duration
-exo_dict['planet']['td_unit'] = 's'
-exo_dict['planet']['radius'] = ancil.Rp_earth
-exo_dict['planet']['r_unit'] = 'R_earth'            #Any unit of distance in accordance with astropy.units can be added here
-exo_dict['star']['radius'] = ancil.Rs_sun
-exo_dict['star']['r_unit'] = 'R_sun'              #Same deal with astropy.units here
-exo_dict['planet']['f_unit'] = 'rp^2/r*^2'        #this is what you would do for primary transit
 
-#ORRRRR....
-#if you wanted to instead to secondary transit at constant temperature
-#exo_dict['planet']['f_unit'] = 'fp/f*'
-#exo_dict['planet']['temp'] = T_day(Ts, ars, 0)[0]
+### EXOPLANET INPUTS ###
 
-#jdi.print_instruments()
+if ancil.path_to_model == False:
+    exo_dict['planet']['type'] = 'constant'                  #tells pandexo you want a fixed transit depth
+    exo_dict['planet']['transit_duration'] = ancil.D*60.0*60.0   #transit duration
+    exo_dict['planet']['td_unit'] = 's'
+    exo_dict['planet']['radius'] = ancil.Rp_earth
+    exo_dict['planet']['r_unit'] = 'R_earth'            #Any unit of distance in accordance with astropy.units can be added here
+    exo_dict['star']['radius'] = ancil.Rs_sun
+    exo_dict['star']['r_unit'] = 'R_sun'              #Same deal with astropy.units here
+    exo_dict['planet']['f_unit'] = 'rp^2/r*^2'        #this is what you would do for primary transit
+
+    #ORRRRR....
+    #if you wanted to instead to secondary transit at constant temperature
+    #exo_dict['planet']['f_unit'] = 'fp/f*'
+    #exo_dict['planet']['temp'] = T_day(Ts, ars, 0)[0]
+
+else:
+    exo_dict['planet']['type'] = 'user'  # tells pandexo you are uploading your own spectrum
+    exo_dict['planet']['exopath'] = ancil.path_to_model
+    exo_dict['planet']['w_unit'] = ancil.w_unit  # other options include "um","nm" ,"Angs", "sec" (for phase curves)
+    exo_dict['planet']['f_unit'] = 'rp^2/r*^2'  # other options are 'fp/f*'
+    exo_dict['planet']['transit_duration'] = ancil.D*60.0*60.0  # transit duration
+    exo_dict['planet']['td_unit'] = 's'  # Any unit of time in accordance with astropy.units can be added
+
+
 
 result = jdi.run_pandexo(exo_dict,[ancil.instrument])
-#result = jdi.run_pandexo(exo_dict,['NIRSpec PRISM'])
+
+
+mask = [wvl_range[0] < wvli < wvl_range[1] for wvli in result['FinalSpectrum']['wave']]
+
+fig, ax = plt.subplots(1,1,figsize=(11,5))
+#ax.errorbar(result['FinalSpectrum']['wave'][mask], result['FinalSpectrum']['spectrum'][mask], yerr=result['FinalSpectrum']['error_w_floor'][mask], fmt='.', ls='')
+
+
+ax.axvline(wvl_range[0], c='r', ls='--')
+ax.axvline(wvl_range[1], c='r', ls='--')
+
+ax.set_xlabel('wavelength (microns)')
+ax.set_ylabel('tansit depth (rprs**2)')
+
+
+
+### PLOT THROUGHPUT
+#ax.plot(wvl_tp , (pce_tp+800e-6)/max((pce_tp+800e-6)/1200e-6), label='throughput (arb. unit)')
+
+
+### CALC NUMBER OF BINS ###
+
+n_bins = (wvl_range[1]-wvl_range[0])/(wvl_range[1]+wvl_range[0]) * 2 * ancil.R
+n_bins = round(n_bins)
+print('n_bins = ', n_bins)
+print('R = ', n_bins/2 * (wvl_range[1]+wvl_range[0])/(wvl_range[1]-wvl_range[0]))
+
+a,b,c=bins(result['FinalSpectrum']['wave'][mask], result['FinalSpectrum']['spectrum'][mask], result['FinalSpectrum']['error_w_floor'][mask], 13)
+
+ax.errorbar(a, b, yerr=c, fmt='.', ls='', label='spectrum')
+
+print('hier: ', np.median(c))
+
+
+ax.set_xlim(3.8, 5.05)
+ax.set_ylim(800e-6, 1200e-6)
+
+plt.title('{0}'.format(ancil.instrument))
+
+plt.legend()
+
+plt.savefig(dirname + '/spectrum.png', dpi=250)
+plt.show()
+
+### SAVE SPECTRUM ###
+
+np.savetxt(dirname + "/spectrum.txt", list(zip(a,b,c)))
 
 n_lam = 2/(exo_dict['planet']['transit_duration']*result['FinalSpectrum']['error_w_floor']**2)
 
