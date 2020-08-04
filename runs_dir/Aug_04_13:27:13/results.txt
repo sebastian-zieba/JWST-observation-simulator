@@ -18,6 +18,11 @@ Saturated?                All good
 Num Groups Reset?         All good                 
 
 
-rms one sec: 520.0024673121181
-rms one min: 67.13202986288667
-rms 30 mins: 12.256575695671156
+Number of bins =  13
+Final resolution =  49.969
+median error bar size:  2.107e-05
+
+
+rms one sec: 520.002
+rms one min: 67.132
+rms 30 mins: 12.257
