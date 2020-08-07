@@ -7,8 +7,8 @@ Rp_earth: 3.95 #not needed if user uses own model
 Rs_sun: 1.18 #not needed if user uses own model
 D: 4.693 #transit duration in hours
 ###
-instrument: NIRCam F444W
-noccultations: 1 #number of transits
+instrument: NIRSpec PRISM
+noccultations: 2 #number of transits
 R: 50 #resolution, definition: R = lambda_mid / delta_lambda
 baseline: 1 #fraction in and out of transit
 ###

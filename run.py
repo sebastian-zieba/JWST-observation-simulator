@@ -7,7 +7,7 @@ import pandexo.engine.justdoit as jdi # THIS IS THE HOLY GRAIL OF PANDEXO
 
 import os
 
-from astropy.io import ascii
+#from astropy.io import ascii
 from datetime import datetime
 from shutil import copyfile
 
@@ -16,14 +16,27 @@ import yaml
 ### BINNING FUNCTION ###
 # Note that the binning is constant
 # One would have to modify that function if the binsize should be a function of wavelength
-def bins(x, y, y_err, n_bins):
-    indexes = np.array_split(np.arange(len(x)), n_bins)
-    #print((indexes[0]).size)
-    binned_x = np.array([np.mean(x[a]) for a in indexes])
-    binned_y = np.array([np.mean(y[a]) for a in indexes])
-    binned_y_err = np.array([np.sqrt(sum(y_err[a]**2)) / np.size(a) for a in indexes])
-    return (binned_x, binned_y, binned_y_err)
 
+###MY OLD RELAYABLE BINNING FUNCTION
+#def bins(x, y, y_err, n_bins):
+#    indexes = np.array_split(np.arange(len(x)), n_bins)
+#    #print((indexes[0]).size)
+#    binned_x = np.array([np.mean(x[a]) for a in indexes])
+#    binned_y = np.array([np.mean(y[a]) for a in indexes])
+#    binned_y_err = np.array([np.sqrt(sum(y_err[a]**2)) / np.size(a) for a in indexes])
+#    return (binned_x, binned_y, binned_y_err)
+
+def bins_new(x, y, y_err, n_bins):
+    binned_x, binned_y, binned_y_err = np.zeros(n_bins), np.zeros(n_bins), np.zeros(n_bins)
+    xmin = min(x)
+    xmax = max(x)
+    stepsize = (xmax-xmin)/n_bins
+    for i in range(n_bins):
+        ind = (x > xmin + i*stepsize) & (x < xmin + (i+1)*stepsize)
+        binned_x[i] = np.mean(x[ind])
+        binned_y[i] = np.mean(y[ind])
+        binned_y_err[i] = np.sqrt(sum(y_err[ind]**2)) / sum(ind)
+    return (binned_x, binned_y, binned_y_err)
 
 ### IMPORT CONFIG FILE ###
 with open('./config/params.yaml', 'r') as file:
@@ -58,7 +71,6 @@ class AncillaryData:
 
 ancil = AncillaryData(params)
 
-
 ### SAVE OUTPUT IF WISHED ###
 
 if ancil.output == True:
@@ -73,24 +85,33 @@ if ancil.output == True:
 
 ### GET THROUGHPUT DATA ###
 
-#print(jdi.print_instruments())
-thru_dict = jdi.get_thruput('NIRCam F444W')
+try:
+    thru_dict = jdi.get_thruput(ancil.instrument)
+except:
+    print(jdi.print_instruments())
+    raise
 
 wvl_tp = thru_dict['wave']
 pce_tp = thru_dict['pce']
 
 mask_pce=[]
 for i in pce_tp:
-    if i/max(pce_tp)>0.1: #only take data where photon conversion effiency is above 10% max
+    if i/max(pce_tp)>0.05: #only take data where photon conversion effiency is above 5% max
         mask_pce.append(True)
     else:
         mask_pce.append(False)
 
-wvl_range = [wvl_tp[mask_pce][0], wvl_tp[mask_pce][-1]] #range in which instrument operates above 10%max
+wvl_range = [wvl_tp[mask_pce][0], wvl_tp[mask_pce][-1]] #range in which instrument operates above 5%max
 
-print('Wavelength range of the instrument: ', ['{:.3f}'.format(num) for num in wvl_range])
+print('Wavelength range of the instrument: ', [float('{:.3f}'.format(num)) for num in wvl_range])
 
+if ancil.path_to_model != False:
+    wvl_model, flux_model = np.loadtxt(ancil.path_to_model).T
+    print('Wavelength range of the model: ', [min(wvl_model), max(wvl_model)])
 
+    wvl_range = [max([wvl_tp[mask_pce][0], min(wvl_model)]), min([wvl_tp[mask_pce][-1], max(wvl_model)])]
+
+    print('Final Wavelength range: ', [float('{:.3f}'.format(num)) for num in wvl_range])
 
 ### RUN PANDEXO
 
@@ -164,7 +185,7 @@ mask = [wvl_range[0] < wvli < wvl_range[1] for wvli in result['FinalSpectrum']['
 # PLOT IT
 fig, ax = plt.subplots(1,1,figsize=(11,5))
 
-ax.axvline(wvl_range[0], c='r', ls='--')
+ax.axvline(wvl_range[0], c='r', ls='--', label='wvl range')
 ax.axvline(wvl_range[1], c='r', ls='--')
 
 ax.set_xlabel('wavelength (microns)')
@@ -178,38 +199,47 @@ n_bins = int(round(n_bins)) #rounding will lead to a resolution which is a bit o
 print('Number of bins = ', n_bins)
 print('Final resolution = ', '{:.3f}'.format( n_bins/2 * (wvl_range[1]+wvl_range[0])/(wvl_range[1]-wvl_range[0]) ))
 
-a,b,c=bins(result['FinalSpectrum']['wave'][mask], result['FinalSpectrum']['spectrum'][mask], result['FinalSpectrum']['error_w_floor'][mask], n_bins)
+a,b,c=bins_new(result['FinalSpectrum']['wave'][mask], result['FinalSpectrum']['spectrum'][mask], result['FinalSpectrum']['error_w_floor'][mask], n_bins)
+#dont judge me on the naming
 
-ax.errorbar(a, b, yerr=c, fmt='.', ls='', label='spectrum')
+ind = np.isnan(c)
+a, b, c = a[~ind], b[~ind], c[~ind]
+
+b_rand = b + c * np.random.normal(0,1,len(b))
+
+ax.errorbar(a, b_rand, yerr=c, fmt='.', ls='', label='spectrum')
 
 print('median error bar size: ', '{:.3e}'.format( np.median(c)) )
 
 
-# PLOT TRANSMISSION AND MAKE LIMITS GREAT
+# PLOT TRANSMISSION AND MAKE LIMITS BETTER
 
 xlim0, xlim1 = ax.get_xlim()
 
 ylim0, ylim1 = ax.get_ylim()
 ylim_range = ylim1 - ylim0
 ylim_scaler=0.4
-ax.set_ylim(ylim0 - ylim_scaler * ylim_range, ylim1 + ylim_scaler * ylim_range)
+ax.set_ylim(ylim0 - ylim_scaler * ylim_range, ylim1 + ylim_scaler*1.2 * ylim_range)
 
 ylim0, ylim1 = ax.get_ylim()
 pce_tp_rescale = pce_tp * (ylim1-ylim0)/(max(pce_tp)*3-0) + ylim0
-ax.plot(wvl_tp, pce_tp_rescale, ls='-.', label='bandpass')
+ax.plot(wvl_tp, pce_tp_rescale, ls='-.', label='bandpass (arb. units)')
+
+ax.plot(wvl_model, flux_model, c='k', alpha=0.2, label='model')
+ax.scatter(a, b, marker='s', facecolors='none', edgecolors='r', label='mean bin')
 
 ax.set_xlim(xlim0,xlim1)
 
-plt.title('{0}'.format(ancil.instrument))
+plt.title('{0}, #Transits = {1}, R = {2:.1f}'.format(ancil.instrument, ancil.noccultations, n_bins/2 * (wvl_range[1]+wvl_range[0])/(wvl_range[1]-wvl_range[0])))
 
-plt.legend()
+plt.legend(loc=1)
 
-plt.savefig(dirname + '/spectrum.png', dpi=250)
+plt.savefig(dirname + '/spectrum.png', dpi=200)
 plt.show()
 
 ### SAVE SPECTRUM ###
 
-np.savetxt(dirname + "/spectrum.txt", list(zip(a,b,c)))
+np.savetxt(dirname + "/spectrum.txt", list(zip(a,b,b_rand,c)))
 
 n_lam = 2/(exo_dict['planet']['transit_duration']*result['FinalSpectrum']['error_w_floor']**2)
 
