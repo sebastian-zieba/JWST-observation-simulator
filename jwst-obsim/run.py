@@ -18,8 +18,7 @@ __all__ = ['AncillaryData']
 #lib_dir = '/home/zieba/Desktop/Projects/JWST-observation-simulator/sim/'
 #sys.path.insert(0,lib_dir)
 sys.path.insert(0, os.path.abspath('..'))
-print(sys.path)
-print(sys.path)
+
 ### BINNING FUNCTION ###
 # Note that the binning is constant
 # One would have to modify that function if the binsize should be a function of wavelength
@@ -55,8 +54,7 @@ def bins_new(x, y, y_err, n_bins):
 
 ### IMPORT CONFIG FILE ###
 
-#yaml_path = './config/params.yaml'
-yaml_path = '/home/zieba/Desktop/Projects/JWST-observation-simulator/sim/config/params.yaml'
+yaml_path = './config/params.yaml'
 
 
 with open(yaml_path, 'r') as file:
