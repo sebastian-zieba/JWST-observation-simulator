@@ -32,12 +32,12 @@
           <div class="body" role="main">
             
   <div class="section" id="the-code">
-<h1>The Code<a class="headerlink" href="#the-code" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="engine-justdoit">
-<h2>engine.justdoit<a class="headerlink" href="#engine-justdoit" title="Permalink to this headline">¶</a></h2>
+<span id="api"></span><h1>The Code<a class="headerlink" href="#the-code" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-jwstobsim.utils">
+<span id="jwstobsim"></span><h2>jwstobsim<a class="headerlink" href="#module-jwstobsim.utils" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="sim.run.AncillaryData">
-<em class="property">class </em><code class="sig-prename descclassname">sim.run.</code><code class="sig-name descname">AncillaryData</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="headerlink" href="#sim.run.AncillaryData" title="Permalink to this definition">¶</a></dt>
+<dt id="jwstobsim.utils.AncillaryData">
+<em class="property">class </em><code class="sig-prename descclassname">jwstobsim.utils.</code><code class="sig-name descname">AncillaryData</code><span class="sig-paren">(</span><em class="sig-param">params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jwstobsim/utils.html#AncillaryData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jwstobsim.utils.AncillaryData" title="Permalink to this definition">¶</a></dt>
 <dd><div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
@@ -45,6 +45,23 @@
 <li><p>The orbital path is calculated based on <cite>t0</cite> for primary transits and <cite>t_secondary</cite> for secondary eclipses.</p></li>
 </ul>
 </div>
+</dd></dl>
+
+<dl class="function">
+<dt id="jwstobsim.utils.bins_new">
+<code class="sig-prename descclassname">jwstobsim.utils.</code><code class="sig-name descname">bins_new</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">y</em>, <em class="sig-param">y_err</em>, <em class="sig-param">n_bins</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/jwstobsim/utils.html#bins_new"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#jwstobsim.utils.bins_new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate maximum error for transit light curve calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>plot</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, plots the error in the light curve model as a function of separation of centers.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Truncation error (parts per million)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -71,7 +88,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">The Code</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#engine-justdoit">engine.justdoit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-jwstobsim.utils">jwstobsim</a></li>
 </ul>
 </li>
 </ul>

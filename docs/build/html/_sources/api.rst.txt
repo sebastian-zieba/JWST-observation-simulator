@@ -1,9 +1,11 @@
+.. _api:
+
 The Code
 ==============
 
 
-engine.justdoit
+jwstobsim
 ---------------
 
-.. autoclass:: sim.run.AncillaryData
+.. automodule:: jwstobsim.utils
    :inherited-members:

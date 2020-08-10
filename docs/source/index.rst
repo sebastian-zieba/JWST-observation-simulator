@@ -22,8 +22,11 @@ Guide
    :maxdepth: 2
    :caption: Contents:
 
+   installation
    quickstart
+   tutorial
    api
+   acknowledgements
 
 
 Indices and tables
