@@ -7,7 +7,7 @@ import pandexo.engine.justdoit as jdi # THIS IS THE HOLY GRAIL OF PANDEXO
 
 import os
 
-from .utils import *
+from jwstobsim.utils import *
 
 
 #from astropy.io import ascii
