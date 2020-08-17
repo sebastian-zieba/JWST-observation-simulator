@@ -1,3 +1,11 @@
+import os, sys
+#__all__ = ['AncillaryData']
+#lib_dir = '/home/zieba/Desktop/Projects/JWST-observation-simulator/sim/'
+#sys.path.insert(0,lib_dir)
+#sys.path.insert(0, os.path.abspath('.'))
+sys.path.append('..')
+#print(sys.path)
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -5,10 +13,7 @@ import warnings
 warnings.filterwarnings('ignore')
 import pandexo.engine.justdoit as jdi # THIS IS THE HOLY GRAIL OF PANDEXO
 
-import os
-
 from jwstobsim.utils import *
-
 
 #from astropy.io import ascii
 from datetime import datetime
@@ -16,11 +21,7 @@ from shutil import copyfile
 
 import yaml
 
-import sys
-#__all__ = ['AncillaryData']
-#lib_dir = '/home/zieba/Desktop/Projects/JWST-observation-simulator/sim/'
-#sys.path.insert(0,lib_dir)
-sys.path.insert(0, os.path.abspath('..'))
+
 
 
 
@@ -43,7 +44,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 ### IMPORT CONFIG FILE ###
 
-yaml_path = './config/params.yaml'
+yaml_path = '../jwstobsim/config/params.yaml'
 #yaml_path = '/home/zieba/Desktop/Projects/JWST-observation-simulator/jwstobsim/config/params.yaml'
 
 with open(yaml_path, 'r') as file:
