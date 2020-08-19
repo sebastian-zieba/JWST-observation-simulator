@@ -1,5 +1,7 @@
 # JWST observation simulator
 
+Check out the READ THE DOCS on: https://jwst-observation-simulator.readthedocs.io/en/latest/index.html
+
 ## Goal:
 
 This repository will contain some code to simulate JWST observations for a specific target
