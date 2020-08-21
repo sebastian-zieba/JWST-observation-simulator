@@ -3,19 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-thats just a test Welcome to JWST-obsim's documentation!
-========================================================
+Welcome to the documentation of the JWST-observation simulator!
+===============================================================
 
-another header
-==============
-
-heres some text.::
-
-        print('hello')
-        >> hello
+This tool creates simulated spectra based on PandExo.
 
 Guide
 ^^^^^
+
+Soon to be added...
 
 
 .. toctree::
