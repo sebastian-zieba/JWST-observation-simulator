@@ -23,6 +23,7 @@ class AncillaryData:
         self.output = params['output']
         self.path_to_model = params['path_to_model']
         self.w_unit = params['w_unit']
+        self.noisefloor = params['noisefloor']
 
         self.instrument = params['instrument']
 

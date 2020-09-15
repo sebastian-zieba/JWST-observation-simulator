@@ -21,9 +21,9 @@ Num Groups Reset?         NGROUPS<2SET TO NGROUPS=2
 
 Number of bins =  74
 Final resolution =  50.156
-median error bar size:  1.281e-05
+median error bar size:  2.000e-05
 
 
-rms one sec: 92.757
-rms one min: 11.975
-rms 30 mins: 2.186
+rms one sec: 220.705
+rms one min: 28.493
+rms 30 mins: 5.202

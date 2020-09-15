@@ -117,7 +117,7 @@ exo_dict['observation']['baseline_unit'] = 'frac'  #Defines how you specify out 
                                                     #'total' : total observing time (seconds)
 exo_dict['observation']['baseline'] = ancil.baseline #in accordance with what was specified above (total observing time)
 
-exo_dict['observation']['noise_floor'] = 0   #this can be a fixed level or it can be a filepath
+exo_dict['observation']['noise_floor'] = ancil.noisefloor   #this can be a fixed level or it can be a filepath
                                              #to a wavelength dependent noise floor solution (units are ppm)
 
 ### HOST STAR INPUTS ###
@@ -181,14 +181,18 @@ ax.set_ylabel('tansit depth (rprs**2)')
 
 
 ### CALC NUMBER OF BINS ###
+if ancil.R != 0:
+    print(ancil.R)
+    n_bins = (wvl_range[1]-wvl_range[0])/(wvl_range[1]+wvl_range[0]) * 2 * ancil.R
+    n_bins = int(round(n_bins)) #rounding will lead to a resolution which is a bit off the wanted value (could be improved)
+    print('Number of bins = ', n_bins)
+    print('Final resolution = ', '{:.3f}'.format( n_bins/2 * (wvl_range[1]+wvl_range[0])/(wvl_range[1]-wvl_range[0]) ))
 
-n_bins = (wvl_range[1]-wvl_range[0])/(wvl_range[1]+wvl_range[0]) * 2 * ancil.R
-n_bins = int(round(n_bins)) #rounding will lead to a resolution which is a bit off the wanted value (could be improved)
-print('Number of bins = ', n_bins)
-print('Final resolution = ', '{:.3f}'.format( n_bins/2 * (wvl_range[1]+wvl_range[0])/(wvl_range[1]-wvl_range[0]) ))
-
-a,b,c=bins_new(result['FinalSpectrum']['wave'][mask], result['FinalSpectrum']['spectrum'][mask], result['FinalSpectrum']['error_w_floor'][mask], n_bins)
-#dont judge me on the naming
+    a,b,c=bins_new(result['FinalSpectrum']['wave'][mask], result['FinalSpectrum']['spectrum'][mask], result['FinalSpectrum']['error_w_floor'][mask], n_bins)
+    #dont judge me on the naming
+else:
+    n_bins = 0
+    a,b,c=result['FinalSpectrum']['wave'][mask], result['FinalSpectrum']['spectrum'][mask], result['FinalSpectrum']['error_w_floor'][mask]
 
 ind = np.isnan(c)
 a, b, c = a[~ind], b[~ind], c[~ind]
@@ -206,7 +210,7 @@ xlim0, xlim1 = ax.get_xlim()
 
 ylim0, ylim1 = ax.get_ylim()
 ylim_range = ylim1 - ylim0
-ylim_scaler=0.4
+ylim_scaler=0.1
 ax.set_ylim(ylim0 - ylim_scaler * ylim_range, ylim1 + ylim_scaler*1.2 * ylim_range)
 
 ylim0, ylim1 = ax.get_ylim()
@@ -228,6 +232,7 @@ plt.show()
 ### SAVE SPECTRUM ###
 
 np.savetxt(dirname + "/spectrum.txt", list(zip(a,b,b_rand,c)))
+#np.savetxt(dirname + "/spectrum2.txt", list(zip(a,b,c)))
 
 n_lam = 2/(exo_dict['planet']['transit_duration']*result['FinalSpectrum']['error_w_floor']**2)
 

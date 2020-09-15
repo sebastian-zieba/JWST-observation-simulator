@@ -3,14 +3,16 @@ magK: 7.853 #stell. magnitude in K band
 Ts: 6290 #stellar Temperature in Kelvin
 metal: -0.24 #stell. metallicity
 logg: 4.29 #stell. logg
+D: 4.693 #transit duration in hours
+### following two are not needed if user uses own model
 Rp_earth: 3.95 #not needed if user uses own model
 Rs_sun: 1.18 #not needed if user uses own model
-D: 4.693 #transit duration in hours
 ###
 instrument: NIRSpec PRISM
 noccultations: 2 #number of transits
-R: 50 #resolution, definition: R = lambda_mid / delta_lambda
+R: 50 #resolution, definition: R = lambda_mid / delta_lambda #if 0 -> no binning at all
 baseline: 1 #fraction in and out of transit
+noisefloor: 40 #ppm
 ###
 output: True #set if output should be saved
 ###
