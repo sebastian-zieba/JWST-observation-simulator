@@ -8,7 +8,7 @@ This repository will contain some code to simulate JWST observations for a speci
 
 ## Reason:
 
-Proposal(s)(?)
+Can be used to calculate errorbars on JWST data.
 
 ## Structure and Contents:
 
